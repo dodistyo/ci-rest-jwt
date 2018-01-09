@@ -25,17 +25,33 @@ use \Firebase\JWT\JWT;
  */
 class Main extends REST_Controller {
 
+	private $user_credential;
+
     function __construct()
     {
         // Construct the parent class
         parent::__construct();
-
         // Configure limits on our controller methods
         // Ensure you have created the 'limits' table and enabled 'limits' within application/config/rest.php
         $this->methods['users_get']['limit'] = 500; // 500 requests per hour per user/key
         $this->methods['users_post']['limit'] = 100; // 100 requests per hour per user/key
         $this->methods['users_delete']['limit'] = 50; // 50 requests per hour per user/key
-        $this->load->model('M_main');
+        //JWT Auth middleware
+        $headers = $this->input->get_request_header('Authorization');
+        $kunci = $this->config->item('thekey'); //secret key for encode and decode
+        $token= "token";
+       	if (!empty($headers)) {
+        	if (preg_match('/Bearer\s(\S+)/', $headers , $matches)) {
+            $token = $matches[1];
+        	}
+    	}
+        try {
+           $decoded = JWT::decode($token, $kunci, array('HS256'));
+           $this->user_credential = $decoded;
+        } catch (Exception $e) {
+            $invalid = ['status' => $e->getMessage()]; //Respon if credential invalid
+            $this->response($invalid, 401);//401
+        }
     }
 
     public function users_get()
@@ -109,49 +125,12 @@ class Main extends REST_Controller {
         }
     }
 
-    public function login_post()
-    {
-        $u = $this->post('username'); //Username Posted
-        $p = sha1($this->post('password')); //Pasword Posted
-        $q = array('username' => $u); //For where query condition
-        $kunci = $this->config->item('thekey');
-        $val = $this->M_main->get_user($q)->row(); //Model to get single data row from database base on username
-		$match = $val->password;   //Get password for user from database
-        $invalidLogin = ['status' => 'Invalid Login']; //Respon if login invalid
-        if(!$u || !$p) $this->response($invalidLogin, REST_Controller::HTTP_NOT_FOUND);//If Post empty
-        if($p == $match){  //Condition if password matched
-        	$token['id'] = $val->id;  //From here
-            $token['username'] = $u;
-            $date = new DateTime();
-            $token['iat'] = $date->getTimestamp();
-            $token['exp'] = $date->getTimestamp() + 60*60*5; //To here is to generate token
-            $output['token'] = JWT::encode($token,$kunci ); //This is the output token
-            $this->set_response($output, REST_Controller::HTTP_OK); //This is the respon if success
-        }
-        else {
-            $this->set_response($invalidLogin, REST_Controller::HTTP_NOT_FOUND); //This is the respon if failed
-        }
-    }
-
 
     public function test_post(){
-        $kunci = $this->config->item('thekey'); //secret key for encode and decode
-        $headers = $this->input->get_request_header('Authorization'); //get token from request header
-
-        try {
-           $decoded = JWT::decode($headers, $kunci, array('HS256'));
-           $decoded_array = (array) $decoded;
-           $this->set_response($decoded, REST_Controller::HTTP_OK);
-        } catch (Exception $e) {
-            $invalid = ['status' => $e->getMessage()]; //Respon if credential invalid
-             $this->set_response($invalid, REST_Controller::HTTP_BAD_REQUEST);
-        }
+       
+        $theCredential = $this->user_credential;
+        $this->response($theCredential, 200); // OK (200) being the HTTP response code
         
-        // if($decoded){
-        //     $this->set_response($decoded, REST_Controller::HTTP_OK);
-        // }elseif($headers ==  null){
-        //     $this->set_response($invalidLogin, REST_Controller::HTTP_BAD_REQUEST);
-        // }
 }
 
     public function users_delete()

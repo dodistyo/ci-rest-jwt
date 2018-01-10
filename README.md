@@ -6,7 +6,9 @@ A fully RESTful server implementation for CodeIgniter using JWT for Authenticati
 - Import Database from /db/rest_jwt.db
 - Test it with postman
 - Login :
+
 	Username = dodi
+	
 	Password = dodi123
 
 ## Refference

@@ -13,7 +13,7 @@ A fully RESTful server implementation for CodeIgniter using JWT for Authenticati
 
 ## Refference
 
-This project was originally Using REST by Phil Sturgeon and Firebase/PHP-JWT.
+This project Using REST by Phil Sturgeon and Firebase/PHP-JWT.
 For more information :
 ## REST
 https://github.com/chriskacerguis/codeigniter-restserver

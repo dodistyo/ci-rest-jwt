@@ -12,7 +12,7 @@ A fully RESTful server implementation for CodeIgniter using JWT for Authenticati
 	
 	password = dodi123
 - If your authentication success you will get generated token response
-- To test it, go Create post method from postman "http://localhost/ci-rest-jwt/api/main/test" and then you can attach that generated token you've got to authentication bearer token. see example bellow :
+- To test it, go Create post method from postman "http://localhost/ci-rest-jwt/api/main/test" and then you can attach that generated token you've got to the header authentication bearer token. see example bellow :
 
 	Authentication: Bearer "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6IjIiLCJ1c2VybmFtZSI6ImRvZGk"
 
